@@ -9,6 +9,7 @@ import (
 
 	ghErrors "github.com/github/github-mcp-server/pkg/errors"
 	"github.com/github/github-mcp-server/pkg/inventory"
+	"github.com/github/github-mcp-server/pkg/sanitize"
 	"github.com/github/github-mcp-server/pkg/scopes"
 	"github.com/github/github-mcp-server/pkg/translations"
 	"github.com/github/github-mcp-server/pkg/utils"
@@ -173,7 +174,7 @@ func issueToDependencyRef(issue *github.Issue) MinimalIssueRef {
 	}
 	ref := MinimalIssueRef{
 		Number: issue.GetNumber(),
-		Title:  issue.GetTitle(),
+		Title:  sanitize.Sanitize(issue.GetTitle()),
 		State:  strings.ToUpper(issue.GetState()),
 		URL:    issue.GetHTMLURL(),
 	}
