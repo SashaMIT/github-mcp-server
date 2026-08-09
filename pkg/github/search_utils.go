@@ -204,6 +204,12 @@ func searchHandler(
 		return ghErrors.NewGitHubAPIStatusErrorResponse(ctx, errorPrefix, resp, body), nil
 	}
 
+	// search_pull_requests (and other Issues-search callers) return raw
+	// title/body; sanitize before marshal so they cannot bypass pull_request_read.
+	for _, iss := range result.Issues {
+		sanitizeGitHubIssueTextFields(iss)
+	}
+
 	filtered := false
 	var payload any = result
 	if len(cfg.fields) > 0 {

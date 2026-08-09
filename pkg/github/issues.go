@@ -1793,6 +1793,20 @@ func parseRepositoryURL(repoURL string) (string, string, bool) {
 	return parts[0], parts[1], true
 }
 
+// sanitizeGitHubIssueTextFields applies the same title/body sanitization used on
+// issue_read / pull_request_read so search results cannot bypass those paths.
+func sanitizeGitHubIssueTextFields(issue *github.Issue) {
+	if issue == nil {
+		return
+	}
+	if issue.Title != nil {
+		issue.Title = github.Ptr(sanitize.Sanitize(*issue.Title))
+	}
+	if issue.Body != nil {
+		issue.Body = github.Ptr(sanitize.Sanitize(*issue.Body))
+	}
+}
+
 // SearchIssueResult wraps a REST search hit with its custom issue field values, fetched in a follow-up GraphQL nodes() query.
 type SearchIssueResult struct {
 	*github.Issue
@@ -2060,6 +2074,9 @@ func searchIssuesHandler(ctx context.Context, deps ToolDependencies, args map[st
 
 	items := make([]SearchIssueResult, 0, len(result.Issues))
 	for _, iss := range result.Issues {
+		// Match issue_read / pull_request_read: search hits still carry
+		// attacker-controlled title/body into model context.
+		sanitizeGitHubIssueTextFields(iss)
 		hit := SearchIssueResult{Issue: iss}
 		if iss != nil && iss.NodeID != nil {
 			hit.FieldValues = fieldValuesByID[*iss.NodeID]
