@@ -15,6 +15,7 @@ import (
 	"github.com/github/github-mcp-server/pkg/ifc"
 	"github.com/github/github-mcp-server/pkg/inventory"
 	"github.com/github/github-mcp-server/pkg/octicons"
+	"github.com/github/github-mcp-server/pkg/sanitize"
 	"github.com/github/github-mcp-server/pkg/scopes"
 	"github.com/github/github-mcp-server/pkg/translations"
 	"github.com/github/github-mcp-server/pkg/utils"
@@ -2708,6 +2709,7 @@ func GetFileBlame(t translations.TranslationHelperFunc) inventory.ServerTool {
 					headline = headline[:idx]
 				}
 				headline = strings.TrimRight(headline, " \t\r")
+				headline = sanitize.Sanitize(headline)
 				bc := BlameCommit{
 					SHA:             sha,
 					MessageHeadline: headline,

@@ -870,7 +870,7 @@ func convertToMinimalFileContentResponse(resp *github.RepositoryContentResponse)
 
 	m.Commit = &MinimalFileCommit{
 		SHA:     resp.Commit.GetSHA(),
-		Message: resp.Commit.GetMessage(),
+		Message: sanitize.Sanitize(resp.Commit.GetMessage()),
 		HTMLURL: resp.Commit.GetHTMLURL(),
 	}
 
@@ -1564,7 +1564,7 @@ func newMinimalCommitFromCore(sha, htmlURL string, commit *github.Commit, author
 
 	if commit != nil {
 		minimalCommit.Commit = &MinimalCommitInfo{
-			Message: commit.GetMessage(),
+			Message: sanitize.Sanitize(commit.GetMessage()),
 		}
 
 		if commit.Author != nil {
@@ -1767,7 +1767,7 @@ func convertToMinimalPullRequestCommits(commits []*github.RepositoryCommit) []Mi
 		}
 
 		if commit.Commit != nil {
-			minimalCommit.Message = commit.Commit.GetMessage()
+			minimalCommit.Message = sanitize.Sanitize(commit.Commit.GetMessage())
 			minimalCommit.Author = convertToMinimalCommitAuthor(commit.Commit.Author)
 		}
 
